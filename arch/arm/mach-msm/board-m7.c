@@ -553,7 +553,6 @@ static void __init apq8064_reserve_fixed_area(unsigned long fixed_area_size)
 {
 #if defined(CONFIG_ION_MSM) && defined(CONFIG_MSM_MULTIMEDIA_USE_ION)
 	int ret;
-
 	if (fixed_area_size > MAX_FIXED_AREA_SIZE)
 		panic("fixed area size is larger than %dM\n",
 			MAX_FIXED_AREA_SIZE >> 20);
@@ -889,9 +888,6 @@ static struct htc_battery_platform_data htc_battery_pdev_data = {
 	.chg_limit_active_mask = HTC_BATT_CHG_LIMIT_BIT_TALK |
 								HTC_BATT_CHG_LIMIT_BIT_NAVI |
 								HTC_BATT_CHG_LIMIT_BIT_THRML,
-#ifdef CONFIG_DUTY_CYCLE_LIMIT
-	.chg_limit_timer_sub_mask = HTC_BATT_CHG_LIMIT_BIT_THRML,
-#endif
 	.critical_low_voltage_mv = 3200,
 	.critical_alarm_vol_ptr = critical_alarm_voltage_mv,
 	.critical_alarm_vol_cols = sizeof(critical_alarm_voltage_mv) / sizeof(int),
@@ -1497,12 +1493,6 @@ static struct i2c_board_info msm_i2c_mhl_sii9234_info[] =
 static struct msm_bus_vectors hsic_init_vectors[] = {
        {
                .src = MSM_BUS_MASTER_SPS,
-               .dst = MSM_BUS_SLAVE_EBI_CH0,
-               .ab = 0,
-               .ib = 0,
-       },
-       {
-               .src = MSM_BUS_MASTER_SPS,
                .dst = MSM_BUS_SLAVE_SPS,
                .ab = 0,
                .ib = 0,
@@ -1513,14 +1503,14 @@ static struct msm_bus_vectors hsic_max_vectors[] = {
        {
                .src = MSM_BUS_MASTER_SPS,
                .dst = MSM_BUS_SLAVE_EBI_CH0,
-               .ab = 60000000,         
-               .ib = 960000000,        
+               .ab = 60000000,		/* At least 480Mbps on bus. */
+	       .ib = 960000000,		/* MAX bursts rate */      
        },
        {
                .src = MSM_BUS_MASTER_SPS,
                .dst = MSM_BUS_SLAVE_SPS,
                .ab = 0,
-               .ib = 512000000, 
+               .ib = 512000000, /*vote for 64Mhz dfab clk rate*/
        },
 };
 
@@ -2195,114 +2185,7 @@ static void ts_himax_reset(void)
 	mdelay(50);
 }
 
-static struct himax_virtual_key m7_himax_vk_data[] = {
-	{
-		.index = 1,
-		.keycode = KEY_BACK,
-		.x_range_min = 300,
-		.x_range_max = 400,
-		.y_range_min = 2880,
-		.y_range_max = 2920,
-	},
-	{
-		.index = 2,
-		.keycode = KEY_HOME,
-		.x_range_min = 720,
-		.x_range_max = 900,
-		.y_range_min = 2880,
-		.y_range_max = 2920,
-	},
-	{
-		.index = 0,
-	},
-};
-
 struct himax_i2c_platform_data_config_type28 evt_config_type28[] = {
-{
-		.version = 0xA2,
-		.common  = 1,
-		.c1 =  { 0x37, 0xFF, 0x08, 0xFF, 0x08},
-		.c2 =  { 0x3F, 0x00},
-		.c3 =  { 0x62, 0x01, 0x00, 0x01, 0x20, 0x01, 0x20, 0x00, 0x00, 0x11, 0x11},
-		.c4 =  { 0x63, 0x01, 0x00, 0x01, 0x20, 0x01, 0x20, 0x00, 0x00, 0x11, 0x11},
-		.c5 =  { 0x64, 0x31, 0x00, 0x31, 0x20, 0x31, 0x20, 0x00, 0x00, 0x11, 0x10},
-		.c6 =  { 0x65, 0x31, 0x00, 0x31, 0x20, 0x31, 0x20, 0x00, 0x00, 0x11, 0x00},
-		.c7 =  { 0x66, 0x31, 0x00, 0x31, 0x02, 0x31, 0x02, 0x00, 0x00, 0x00, 0x11},
-		.c8 =  { 0x67, 0x31, 0x00, 0x31, 0x20, 0x31, 0x20, 0x00, 0x00, 0x01, 0x01},
-		.c9 =  { 0x68, 0x31, 0x00, 0x31, 0x20, 0x31, 0x20, 0x00, 0x00, 0x00, 0x22},
-		.c10 = { 0x69, 0x31, 0x00, 0x31, 0x20, 0x31, 0x20, 0x00, 0x00, 0x22, 0x22},
-		.c11 = { 0x6A, 0x03, 0x00, 0x03, 0x20, 0x03, 0x20, 0x00, 0x00, 0x22, 0x22},
-		.c12 = { 0x6B, 0x31, 0x00, 0x31, 0x20, 0x31, 0x20, 0x00, 0x00, 0x22, 0x22},
-		.c13 = { 0x6C, 0x31, 0x00, 0x31, 0x20, 0x31, 0x20, 0x00, 0x00, 0x00, 0x00},
-		.c14 = { 0x6D, 0x31, 0x00, 0x31, 0x20, 0x31, 0x20, 0x00, 0x00, 0x00, 0x00},
-		.c15 = { 0x6E, 0x31, 0x00, 0x31, 0x20, 0x31, 0x20, 0x00, 0x00, 0x00, 0x00},
-		.c16 = { 0x6F, 0x31, 0x00, 0x31, 0x20, 0x31, 0x20, 0x00, 0x00, 0x00, 0x00},
-		.c17 = { 0x70, 0x03, 0x00, 0x03, 0x21, 0x03, 0x21, 0x00, 0x00, 0x00, 0x00},
-		.c18 = { 0x7B, 0x03},
-		.c19 = { 0x7C, 0x00, 0xD8, 0x0C},
-		.c20 = { 0x7F, 0x00, 0x04, 0x0A, 0x0A, 0x04, 0x00, 0x00, 0x00},
-		.c21 = { 0xA4, 0x94, 0x62, 0x94, 0x86},
-		.c22 = { 0xB4, 0x07, 0x01, 0x02, 0x02, 0x02, 0x02, 0x07, 0x02, 0x07, 0x02,
-					   0x07, 0x02, 0x07, 0x08},
-		.c23 = { 0xB9, 0x01, 0x36},
-		.c24 = { 0xBA, 0x00},
-		.c25 = { 0xBB, 0x00},
-		.c26 = { 0xBC, 0x00, 0x00, 0x00, 0x00},
-		.c27 = { 0xBD, 0x05, 0x0C},
-		.c28 = { 0xC2, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
-		.c29 = { 0xC5, 0x0C, 0x1A, 0x00, 0x10, 0x1A, 0x1E, 0x0B, 0x1A, 0x08, 0x16},
-		.c30 = { 0xC6, 0x13, 0x10, 0x1C},
-		.c31 = { 0xC9, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1C, 0x1C,
-					   0x1D, 0x1D, 0x1B, 0x1B, 0x18, 0x18, 0x15, 0x15, 0x13, 0x13,
-					   0x12, 0x12, 0x0F, 0x0F, 0x1A, 0x1A, 0x1E, 0x1E, 0x19, 0x19,
-					   0x17, 0x17, 0x16, 0x16, 0x11, 0x11, 0x10, 0x10, 0x14, 0x14,
-					   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-					   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-					   0x00, 0x00, 0x00, 0x00},
-		.c32 = { 0xCB, 0x01, 0xF5, 0xFF, 0xFF, 0x01, 0x00, 0x05, 0x00, 0x9F, 0x00,
-					   0x00, 0x00},
-		.c33 = { 0xD0, 0x06, 0x01},
-		.c34 = { 0xD3, 0x06, 0x01},
-		.c35 = { 0xD5, 0xA5, 0xA5, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-					   0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
-		.c36 = { 0x40, 0x05, 0x5A,
-					   0xDF, 0x02, 0xB0, 0x12, 0x00, 0x00,
-					   0x38, 0x0C, 0x0B, 0x12, 0x0A, 0x0A, 0x0A, 0x0F, 0x0F, 0x0F,
-					   0x24, 0x18, 0x40, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-					   0x00, 0x00},
-		.c37 = { 0x40, 0x95, 0x0F, 0xF0, 0x83, 0x84, 0x00,
-					   0x40, 0x28, 0x0F, 0x0F, 0x83, 0x3C, 0x00, 0x00,
-					   0x11, 0x00, 0x00, 0x00,
-					   0x0F, 0x18, 0x00, 0x12, 0x00, 0x00,
-					   0x10, 0x01, 0x3C, 0x64, 0x00, 0x00},
-		.c38 = { 0x40, 0x18, 0x27, 0x27, 0x02, 0x14, 0x00, 0x00, 0x00,
-					   0x04, 0x06, 0x24, 0x07, 0x07, 0x00, 0x00, 0x00},
-		.c39 = { 0x40, 0x20, 0x34, 0x05, 0x00, 0x00, 0xD8, 0x0C, 0x00, 0x00, 0x42,
-					   0x03, 0x11, 0x00, 0x00, 0x00, 0x00,
-					   0x10, 0x02, 0x80, 0x00, 0x00, 0x00, 0x00, 0x0C},
-		.c40 = { 0x40, 0xA2, 0x00, 0x0F, 0x0C, 0x18, 0x0E, 0x19, 0x0F,
-					   0xA0, 0x82, 0x1E, 0x10,
-					   0x1A, 0x10, 0xA0, 0x28,
-					   0x04, 0x4E, 0x0C, 0x30, 0x07, 0x3C},
-		.c41 = { 0x40, 0x00, 0x94, 0x02, 0x7D, 0x80, 0x61, 0x12, 0x03, 0xE6, 0x09,
-					   0x80, 0x84, 0xFC, 0x0C,
-					   0x01, 0x15, 0x04, 0xAB, 0x86, 0x1E, 0x00, 0x05, 0xC3, 0x0E,
-					   0x0B, 0x8B, 0xC1, 0x00},
-		.c42 = { 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
-		.c43_1 = { 0x40, 0x18, 0x27, 0xFF, 0xFF, 0x17, 0x25, 0xFF, 0xFF, 0x16, 0x26,
-						 0x12, 0xFF, 0x15, 0x24, 0x11, 0xFF, 0x00, 0x29, 0x10, 0xFF,
-						 0x01, 0x22, 0x0F, 0xFF, 0x03, 0x23, 0x0D, 0xFF, 0x02, 0x21,
-						 0x0E},
-		.c43_2 = { 0x40, 0xFF, 0xFF, 0x20, 0x0C, 0xFF, 0x04, 0x1F, 0x0A, 0xFF,
-						 0x05, 0x1B, 0x09, 0xFF, 0x06, 0x1E, 0x0B, 0xFF, 0x19, 0x1A,
-						 0x08, 0xFF, 0x07, 0x1C, 0x13, 0xFF, 0x28, 0x1D, 0x14, 0xFF},
-		.c44_1 = { 0x40, 0xA3, 0x00, 0x20, 0x00, 0x13, 0x1E, 0x32, 0x00, 0x00, 0x00,
-						 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-						 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-						 0x56},
-		.c44_2 = { 0x40, 0x02, 0x12, 0x02, 0x00, 0x04},
-		.c45   = { 0x40, 0x00, 0x00},
-	},
 	{
 		.version = 0x04,
 		.common  = 1,
@@ -2400,10 +2283,7 @@ struct himax_i2c_platform_data evt_ts_himax_data = {
 	.abs_pressure_max = 200,
 	.abs_width_min = 0,
 	.abs_width_max = 200,
-	.virtual_key = m7_himax_vk_data,
-	.gpio_reset = TP_RSTz,
 	.gpio_irq = TP_ATTz,
-	.protocol_type = PROTOCOL_TYPE_B,
 	.version = 0x00,
 	.tw_id = 0,
 	.event_htc_enable = 0,
@@ -2424,28 +2304,18 @@ struct himax_i2c_platform_data evt_ts_himax_data = {
 	.enable = ts_himax_enable,
 	.disable = ts_himax_disable,
 	.exit = __devexit_p(ts_himax_exit),
+	.gpio_reset = TP_RSTz,
 
 	.power_keep_on = 1,
 };
 
-static ssize_t himax_virtual_keys_show(struct kobject *kobj,
-			struct kobj_attribute *attr, char *buf)
-{
-	return sprintf(buf,
-		__stringify(EV_KEY) ":" __stringify(KEY_BACK)		":157:2010:200:160"
-		":" __stringify(EV_KEY) ":" __stringify(KEY_HOME)	":540:2010:200:160"
-		":" __stringify(EV_KEY) ":" __stringify(KEY_APP_SWITCH)   ":923:2010:200:160"
-		"\n");
-}
-
-static struct kobj_attribute himax_virtual_keys_attr = {
-	.attr = {
-		.name = "virtualkeys.himax-touchscreen",
-		.mode = S_IRUGO,
+static struct i2c_board_info himax_i2c_gsbi3_info[] = {
+	{
+		I2C_BOARD_INFO(HIMAX8528_NAME, 0x90 >> 1),
+		.platform_data = &evt_ts_himax_data,
+		.irq = MSM_GPIO_TO_INT(TP_ATTz)
 	},
-	.show = &himax_virtual_keys_show,
 };
-
 #endif
 
 static struct synaptics_virtual_key m7_vk_data[] = {
@@ -3325,11 +3195,6 @@ static struct i2c_board_info msm_i2c_gsbi3_info[] = {
 		.platform_data = &syn_ts_3k_data,
 		.irq = MSM_GPIO_TO_INT(TP_ATTz)
 	},
-	{
-		I2C_BOARD_INFO(HIMAX8528_NAME, 0x90 >> 1),
-		.platform_data = &evt_ts_himax_data,
-		.irq = MSM_GPIO_TO_INT(TP_ATTz)
-	},
 };
 
 static ssize_t virtual_syn_keys_show(struct kobject *kobj,
@@ -3351,7 +3216,6 @@ static struct kobj_attribute syn_virtual_keys_attr = {
 };
 static struct attribute *properties_attrs[] = {
 	&syn_virtual_keys_attr.attr,
-	&himax_virtual_keys_attr.attr,
 	NULL
 };
 static struct attribute_group properties_attr_group = {
@@ -3624,14 +3488,14 @@ static int capella_pl_sensor_lpm_power(uint8_t enable)
 	int rc = 0;
 
 	mutex_lock(&pl_sensor_lock);
-	pr_info("[PS][cm3629] %s: pl_sensor_lock lock\n", __func__);
+	pr_debug("[PS][cm3629] %s: pl_sensor_lock lock\n", __func__);
 
 	if (pl_reg_l16 == NULL) {
 		pl_reg_l16 = regulator_get(NULL, "8921_l16");
 		if (IS_ERR(pl_reg_l16)) {
 			pr_err("[PS][cm3629] %s: Unable to get '8921_l16' \n", __func__);
 			mutex_unlock(&pl_sensor_lock);
-			pr_info("[PS][cm3629] %s: pl_sensor_lock unlock 1\n", __func__);
+			pr_debug("[PS][cm3629] %s: pl_sensor_lock unlock 1\n", __func__);
 			return -ENODEV;
 		}
 	}
@@ -3645,7 +3509,7 @@ static int capella_pl_sensor_lpm_power(uint8_t enable)
 			pr_err("'%s' regulator enable failed, rc=%d\n",
 				"pl_reg_l16", rc);
 			mutex_unlock(&pl_sensor_lock);
-			pr_info("[PS][cm3629] %s: pl_sensor_lock unlock 2\n", __func__);
+			pr_debug("[PS][cm3629] %s: pl_sensor_lock unlock 2\n", __func__);
 			return rc;
 		}
 		pr_info("[PS][cm3629] %s: enter lmp,OK\n", __func__);
@@ -3659,14 +3523,14 @@ static int capella_pl_sensor_lpm_power(uint8_t enable)
 			pr_err("'%s' regulator enable failed, rc=%d\n",
 				"pl_reg_l16", rc);
 			mutex_unlock(&pl_sensor_lock);
-			pr_info("[PS][cm3629] %s: pl_sensor_lock unlock 3\n", __func__);
+			pr_debug("[PS][cm3629] %s: pl_sensor_lock unlock 3\n", __func__);
 			return rc;
 		}
-		pr_info("[PS][cm3629] %s: leave lmp,OK\n", __func__);
+		pr_debug("[PS][cm3629] %s: leave lmp,OK\n", __func__);
 		usleep(10);
 	}
 	mutex_unlock(&pl_sensor_lock);
-	pr_info("[PS][cm3629] %s: pl_sensor_lock unlock 4\n", __func__);
+	pr_debug("[PS][cm3629] %s: pl_sensor_lock unlock 4\n", __func__);
 	return rc;
 }
 static struct cm3629_platform_data cm36282_pdata_sk2 = {
@@ -3685,7 +3549,7 @@ static struct cm3629_platform_data cm36282_pdata_sk2 = {
 	.ps1_thd_set = 0x15,
 	.ps1_thd_no_cal = 0x90,
 	.ps1_thd_with_cal = 0xD,
-	.ps_th_add = 10,
+	.ps_th_add = 5,
 	.ps_calibration_rule = 1,
 	.ps_conf1_val = CM3629_PS_DR_1_40 | CM3629_PS_IT_1_6T |
 			CM3629_PS1_PERS_2,
@@ -3723,7 +3587,7 @@ static struct cm3629_platform_data cm36282_pdata_r8 = {
 	.ps1_thd_set = 0x15,
 	.ps1_thd_no_cal = 0x90,
 	.ps1_thd_with_cal = 0xD,
-	.ps_th_add = 10,
+	.ps_th_add = 5,
 	.ps_calibration_rule = 1,
 	.ps_conf1_val = CM3629_PS_DR_1_40 | CM3629_PS_IT_1_6T |
 			CM3629_PS1_PERS_2,
@@ -4038,7 +3902,7 @@ static struct platform_device msm_tsens_device = {
 static struct msm_thermal_data msm_thermal_pdata = {
 	.sensor_id = 0,
 	.poll_ms = 1000,
-	.limit_temp = 51,
+	.limit_temp = 60,
 	.temp_hysteresis = 10,
 	.limit_freq = 918000,
 };
@@ -4124,7 +3988,7 @@ static struct msm_rpmrs_level msm_rpmrs_levels[] = {
 		MSM_PM_SLEEP_MODE_WAIT_FOR_INTERRUPT,
 		MSM_RPMRS_LIMITS(ON, ACTIVE, MAX, ACTIVE),
 		true,
-		1, 784, 180000, 100,
+		1, 650, 180000, 100,
 	},
 
 	{
@@ -5205,11 +5069,6 @@ static int ethernet_init(void)
 }
 #endif
 
-static struct platform_device msm_dev_avtimer_device = {
-	.name = "dev_avtimer",
-	.dev = { .platform_data = &dev_avtimer_pdata },
-};
-
 #define DSPS_PIL_GENERIC_NAME          "dsps"
 static void __init m7_init_dsps(void)
 {
@@ -5470,6 +5329,11 @@ static void __init register_i2c_devices(void)
 					continue;
 				}
 			}
+			if (i == 0 && ((skuid & 0xFF) == 0x35)) {
+				pr_info("[TP] Himax 2nd source\n");
+				m7_i2c_devices[i].info =  himax_i2c_gsbi3_info;
+				m7_i2c_devices[i].len = ARRAY_SIZE(himax_i2c_gsbi3_info);
+			}
 			i2c_register_board_info(m7_i2c_devices[i].bus,
 						m7_i2c_devices[i].info,
 						m7_i2c_devices[i].len);
@@ -5698,7 +5562,7 @@ static void __init m7_common_init(void)
 	msm_pm_init_sleep_status_data(&msm_pm_slp_sts_data);
 	properties_kobj = kobject_create_and_add("board_properties", NULL);
 	if (properties_kobj) {
-		rc = sysfs_create_group(properties_kobj, &properties_attr_group);
+			rc = sysfs_create_group(properties_kobj, &properties_attr_group);
 	}
 
 	headset_device_register();
@@ -5707,19 +5571,25 @@ static void __init m7_common_init(void)
 #ifdef CONFIG_SUPPORT_USB_SPEAKER
 	pm_qos_add_request(&pm_qos_req_dma, PM_QOS_CPU_DMA_LATENCY, PM_QOS_DEFAULT_VALUE);
 #endif
-#if 1 
-	if ((get_kernel_flag() & KERNEL_FLAG_PM_MONITOR) ||
-		(!(get_kernel_flag() & KERNEL_FLAG_TEST_PWR_SUPPLY) && (!get_tamper_sf()))) {
+	if (get_kernel_flag() & KERNEL_FLAG_PM_MONITOR){
 		htc_monitor_init();
 		htc_pm_monitor_init();
 	}
-#endif
-
-	platform_device_register(&msm_dev_avtimer_device);
 }
 
 static void __init m7_allocate_memory_regions(void)
 {
+#ifdef CONFIG_KEXEC_HARDBOOT
+	// Reserve space for hardboot page at the end of first system ram block
+	struct membank* bank = &meminfo.bank[0];
+	phys_addr_t start = bank->start + bank->size - SZ_1M;
+	int ret = memblock_remove(start, SZ_1M);
+	if(!ret)
+		pr_info("Hardboot page reserved at 0x%X\n", start);
+	else
+		pr_err("Failed to reserve space for hardboot page at 0x%X!\n", start);
+#endif
+
 	m7_allocate_fb_region();
 }
 
