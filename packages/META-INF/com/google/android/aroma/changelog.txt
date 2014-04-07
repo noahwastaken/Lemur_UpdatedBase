@@ -1,0 +1,75 @@
+[4/6/2014]
+-adaptation to full neon-vfpv4 support
+-ext4 mods and tuning
+-random32 and prandom mods
+-fix performance regression in O_DIRECT writes to md block devices
+-writeback: fix occasional slow sync(1) 
+-ext4: fix memory leak in xattr
+-intelliactive: make touch boost interface generic
+
+[4/4/2014]
+-Implement writer lock-stealing for better scalability
+-Improve touchscreen sensitivity
+-Do not hardcode pressure & width
+-random: allow architectures to optionally define random_get_entropy() 
+-random: adjustments, modifications
+-softirq: reduce latencies
+-timer: optimize apply_slack() 
+-ARCH: makefile adjustments (morfic and poondog)
+-scripts: add compiler time variables (ziggy471)
+-SCHED: LOAD_FREQ (4*HZ+61)
+-fix graphical slowness on wakeup
+
+[4/2/2014]
+-Linux version 3.4.20
+-improved fairness efficiency 
+-disabled shadow_writes
+-Optimize cgroup pick_next_task_fair() 
+-Optimize find_busiest_queue()
+-Removed PAGE_ALLOC_COSTLY_ORDER for a 3% boost
+
+[3/30/14]
+-Reverted back to Linux verion 3.4.10
+-Intelliplug (intelligent hotplugging by faux123)
+-memcpy, memmove, copy_page optimization 
+-enabled MOTOROLA MEMUTILS OPT
+-reverted fm radio fix
+-Added option to choose io scheduler in aroma
+-Added option to choose readahead buffer size in aroma
+-Added option to enable or disable Dynamic Fsync in aroma\
+-Fixed F2W/F2S and P2W options in aroma
+-Sound Mods
+
+[3/27/14]
+-FS: import F2FS
+-reduce and fix wakelock issues
+-redo synaptic algorithms
+-Add governor selection to aroma
+-FM radio for sense 6
+-msm: Add 16 bit PCM as default format for backend
+-irq: Set CPU affinity right on thread creation
+-cpufreq: Optimize cpufreq_frequency_table_verify() .
+-vfp/ test hard float 
+-enable input boost and add some tunables in ondemand
+-fix logo2wake deep sleep
+
+[2/24/14]
+
+Features:
+
+-MP-Decision
+-Thermal
+-Dynamic_Fsync
+-Vfp + Neon optimizations from Linaro
+-Linaro -o3 with tons of extra flags from neon, vfp, and cortex-a15
+-Linaro 4.7.4 Cortex-a15 toolchain
+-Bfq,Cfq,Sio,Vr,Zen,Fiops,Row,Noop, and Deadline IO-Schedulers
+-Lionheart, Smartmax, Wheatley, Intellidemand, Intelliactive, Abyssplugv2, Badass, Lagfree, Asswas, Smartass2, SmartassH3, SavagedZen, DanceDance, and Darkness cpufreq governors
+-S2W/S2S/DT2W/L2M/L2W/P2W/F2W/F2S
+-Pocket Detection
+-Backlight Notification (bln)
+-GPU OC
+-CPU OC
+-Faux Sound
+-Gamma Control
+-UV Control
