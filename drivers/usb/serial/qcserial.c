@@ -111,7 +111,8 @@ static const struct usb_device_id id_table[] = {
 	{USB_DEVICE(0x12D1, 0x14F1)},	
 	{USB_DEVICE(0x05c6, 0x9048)},	
 	{USB_DEVICE(0x05c6, 0x908a)},   
-	{USB_DEVICE(0x05c6, 0x904C)},	
+	{USB_DEVICE(0x05c6, 0x904C)},
+	{USB_DEVICE(0x0AF0, 0x8120)},	/* Option GTM681W */	
 	{ }				
 };
 MODULE_DEVICE_TABLE(usb, id_table);
@@ -233,7 +234,7 @@ static int qcprobe(struct usb_serial *serial, const struct usb_device_id *id)
 			}
 		}
 		break;
-	case 8:
+
 	case 9:
 		
 		if (get_radio_flag() & 0x20000)
